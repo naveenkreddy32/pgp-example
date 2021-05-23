@@ -1,0 +1,13 @@
+gpg --full-generate-key (choose RSA)
+gpg --export  muleuser.test > mypublickey.asc
+gpg --export-secret-keys muleuser.test > myprivatekey.asc
+gpg --list-keys --keyid-format LONG
+
+choose 6F40EEC8DF3374BA for both encryption and decryption
+
+-----------------------------------------------
+pub   rsa3072/6F40EEC8DF3374BA 2021-05-23 [SC] [expires: 2021-06-22]
+      00D6AFFAF29748A8FC5AAAC36F40EEC8DF3374BA
+uid                 [ultimate] mule user (gpg keys) <muleuser.test@gmail.com>
+sub   rsa3072/3188ADCE7D0FC570 2021-05-23 [E] [expires: 2021-06-22]
+

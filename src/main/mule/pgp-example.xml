@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:crypto="http://www.mulesoft.org/schema/mule/crypto"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/crypto http://www.mulesoft.org/schema/mule/crypto/current/mule-crypto.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="7577cfc1-5fb2-4bfa-b363-1015f0907363" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<crypto:pgp-config name="Crypto_Pgp_Encrypt" doc:name="Crypto Pgp" doc:id="efbd1ba4-be95-4a79-9c2c-0e2af3fa47f9" publicKeyring="/Users/naveenkreddynagireddy/.gnupg/mypublickey.asc">
+		<crypto:pgp-key-infos >
+			<crypto:pgp-asymmetric-key-info keyId="muleuser.test" fingerprint="6F40EEC8DF3374BA"/>
+		</crypto:pgp-key-infos>
+	</crypto:pgp-config>
+	<crypto:pgp-config name="Crypto_Pgp_Decrypt" doc:name="Crypto Pgp" doc:id="530c721a-2062-4d4c-a9ff-25154f1be216" privateKeyring="/Users/naveenkreddynagireddy/.gnupg/myprivatekey.asc" >
+		<crypto:pgp-key-infos >
+			<crypto:pgp-asymmetric-key-info keyId="muleuser.test" fingerprint="6F40EEC8DF3374BA" passphrase="muleusertest" />
+		</crypto:pgp-key-infos>
+	</crypto:pgp-config>
+	<flow name="pgp-encrypt" doc:id="ccc091c9-3daa-4259-87de-ad129a4a07d9" >
+		<http:listener doc:name="Listener" doc:id="cff8d34e-97b7-47d8-b8b2-7d2e2167c37b" config-ref="HTTP_Listener_config" path="/encrypt"/>
+		<logger level="INFO" doc:name="Logger" doc:id="db1ff293-613c-4e00-8e85-cd49d4d3dc3f" message="*****Encryption started*****"/>
+		<crypto:pgp-encrypt doc:name="Pgp encrypt" doc:id="ff668e84-03b8-4009-a4a8-06060fa4a354" config-ref="Crypto_Pgp_Encrypt" keyId="muleuser.test"/>
+		<file:write doc:name="Write" doc:id="9dba0394-45ed-4bd6-b5de-211661627aef" path="/Users/naveenkreddynagireddy/Documents/Office/Programming/mule4/pgp-example/input/file.txt"/>
+		<logger level="INFO" doc:name="Logger" doc:id="5e5fe363-6491-43c8-9525-816ad06d3684" message="*****Encryption is successfull*****"/>
+	</flow>
+	<flow name="pgp-decrypt" doc:id="c01b89b4-cbbd-4a5b-8256-f728c821ea53" >
+		<file:listener doc:name="On New or Updated File" doc:id="1db19d09-070c-4f3f-97f0-2178fadcca1f" directory="/Users/naveenkreddynagireddy/Documents/Office/Programming/mule4/pgp-example/input" recursive="false" autoDelete="true">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+			<file:matcher filenamePattern="file.txt" />
+		</file:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="40d9b8f1-88f1-4218-85ae-87609eb041a6" message="*****Decryption started*****"/>
+		<crypto:pgp-decrypt doc:name="Pgp decrypt" doc:id="9d3ff9ce-32dc-498f-b2b3-a4a6d2d8b6bf" config-ref="Crypto_Pgp_Decrypt"/>
+		<file:write doc:name="Write" doc:id="b3165bb4-66a2-4956-8975-107ce3afb1ce" path="/Users/naveenkreddynagireddy/Documents/Office/Programming/mule4/pgp-example/output/plain.txt"/>
+		<logger level="INFO" doc:name="Logger" doc:id="5b83bda5-992c-4db1-8231-970eb2a9ab11" message="*****Decryption is successfull*****"/>
+	</flow>
+</mule>
